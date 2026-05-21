@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Vote</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <div class="header">
+        <h1 th:text="${round.title}"></h1>
+        <p>Submit your vote using your voting code</p>
+    </div>
+
+    <div class="container">
+
+        <div class="card vote-card">
+
+            <div th:if="${success}" class="success-state">
+                <h2>Thank You for Voting</h2>
+                <p>Your vote has been submitted successfully.</p>
+                <p>You may now close this page.</p>
+            </div>
+
+            <div th:if="${round.closed and !success}" class="success-state closed-vote-state">
+                <h2>Voting Closed</h2>
+                <p>This voting round has ended.</p>
+                <p>No more votes can be submitted.</p>
+            </div>
+
+            <div th:unless="${success or round.closed}">
+
+                <p class="error" th:if="${error}" th:text="${error}"></p>
+
+                <form method="post" th:action="@{/vote/{id}(id=${round.id})}" id="voteForm">
+
+                    <div class="vote-code-section">
+                        <h3>Voting Code</h3>
+                        <input name="votingCode" placeholder="Example: A7K9Q2" maxlength="6" required>
+                    </div>
+
+                    <div class="vote-alternative-header">
+                        <h3>Candidates</h3>
+
+                        <p>
+                            Maximum selections:
+                            <strong id="maxSelections" th:text="${round.maxSelections}"></strong>
+                        </p>
+                    </div>
+
+                    <div class="vote-options-list">
+
+                        <label class="vote-option" th:each="alternative : ${alternatives}">
+                            <input class="normal-alternative"
+                                th:type="${round.maxSelections == 1 ? 'radio' : 'checkbox'}" name="alternativeIds"
+                                th:value="${alternative.id}">
+                            <span th:text="${alternative.text}"></span>
+                        </label>
+
+                        <label class="vote-option special-vote-option" th:if="${round.includeBlank}">
+                            <input class="special-vote" type="radio" name="specialVote" value="BLANK">
+                            <span>Blank</span>
+                        </label>
+
+                        <label class="vote-option special-vote-option" th:if="${round.includeVacant}">
+                            <input class="special-vote" type="radio" name="specialVote" value="VACANT">
+                            <span>Vacant</span>
+                        </label>
+
+                    </div>
+
+                    <p class="error" id="selectionError" style="display:none;">
+                        You have reached the maximum number of selections.
+                    </p>
+
+                    <br>
+
+                    <button type="submit">Submit Vote</button>
+
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const maxSelections = Number(document.getElementById("maxSelections")?.innerText || 1);
+        const normalAlternatives = document.querySelectorAll(".normal-alternative");
+        const specialVotes = document.querySelectorAll(".special-vote");
+        const selectionError = document.getElementById("selectionError");
+
+        function updateSelectionState() {
+            if (maxSelections === 1) {
+                if (selectionError) {
+                    selectionError.style.display = "none";
+                }
+                return;
+            }
+
+            const checkedNormalAlternatives = document.querySelectorAll(".normal-alternative:checked");
+            const reachedLimit = checkedNormalAlternatives.length >= maxSelections;
+
+            normalAlternatives.forEach(option => {
+                if (!option.checked) {
+                    option.disabled = reachedLimit;
+                }
+            });
+
+            if (selectionError) {
+                selectionError.style.display = reachedLimit ? "block" : "none";
+            }
+        }
+
+        normalAlternatives.forEach(option => {
+            option.addEventListener("change", () => {
+                if (option.checked) {
+                    specialVotes.forEach(specialVote => {
+                        specialVote.checked = false;
+                    });
+                }
+
+                updateSelectionState();
+            });
+        });
+
+        specialVotes.forEach(specialVote => {
+            specialVote.addEventListener("change", () => {
+                if (specialVote.checked) {
+                    normalAlternatives.forEach(option => {
+                        option.checked = false;
+                        option.disabled = false;
+                    });
+
+                    if (selectionError) {
+                        selectionError.style.display = "none";
+                    }
+                }
+            });
+        });
+
+        updateSelectionState();
+    </script>
+
+    <script src="/js/scroll-preserve.js"></script>
+
+</body>
+
+</html>

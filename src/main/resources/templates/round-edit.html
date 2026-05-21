@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Edit Voting Round</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <span>LundaEkonomerna Voting</span>
+        </div>
+
+        <div class="nav-links">
+            <a href="/admin">Meetings</a>
+            <a href="/admin/members">Members</a>
+            <a href="/vote">Public Vote Page</a>
+            <a href="/logout">Log Out</a>
+        </div>
+    </nav>
+
+    <div class="header">
+        <h1 th:text="${round.title}"></h1>
+        <p>Edit Voting Round</p>
+    </div>
+
+    <div class="container">
+
+        <div class="page-actions">
+            <a class="button secondary" th:href="@{/admin/meetings/{id}(id=${meeting.id})}">
+                Back To Meeting
+            </a>
+
+            <a class="button" th:if="${round.published}" th:href="@{/vote/{id}(id=${round.id})}">
+                Vote Link
+            </a>
+        </div>
+
+        <p class="error" th:if="${publishError}">
+            Please select a nominated candidate before publishing, or uncheck Nomination.
+        </p>
+
+        <div class="published-round-dashboard clean-published-dashboard" th:if="${round.published}">
+
+            <div class="published-status-card"
+                th:classappend="${round.closed ? ' published-status-closed' : (results.passed ? ' published-status-passed' : ' published-status-failed')}">
+
+                <span th:text="${round.closed ? 'Voting Closed' : 'Current Status'}"></span>
+
+                <h2 th:text="${round.closed ? 'Closed' : (results.passed ? 'Passed' : 'Not Passed')}"></h2>
+
+                <p>
+                    Leading Candidate:
+                    <strong th:text="${results.leadingAlternativeText}"></strong>
+                </p>
+
+                <form method="post" th:if="${round.published and !round.closed}"
+                    th:action="@{/admin/rounds/{id}/close(id=${round.id})}" class="end-vote-form">
+
+                    <button type="submit" class="end-vote-button">
+                        End Voting
+                    </button>
+                </form>
+            </div>
+            <div class="published-progress-card clean-published-progress-card">
+                <div class="section-header">
+                    <div>
+                        <h2>Vote Progress</h2>
+                        <p class="muted">Live voting status for this round.</p>
+                    </div>
+                </div>
+
+                <div class="clean-published-metrics">
+
+                    <div>
+                        <span>Votes Cast</span>
+                        <strong>
+                            <span th:text="${results.votesCast}"></span>
+                            /
+                            <span th:text="${results.countedVotesForMajority}"></span>
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Simple Majority</span>
+                        <strong th:text="${results.requiredVotes}"></strong>
+                    </div>
+
+                    <div>
+                        <span>Majority Base</span>
+                        <strong th:text="${results.countedVotesForMajority}"></strong>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="round-edit-main-grid clean-round-edit-grid">
+
+            <div class="card compact-card vote-settings-card clean-round-panel">
+                <div class="section-header clean-panel-header">
+                    <div>
+                        <h2>Vote Settings</h2>
+
+                        <p class="muted" th:if="${!round.published}">
+                            Draft settings for this voting round.
+                        </p>
+
+                        <p class="muted" th:if="${round.published}">
+                            Settings are locked because this vote has been published.
+                        </p>
+                    </div>
+
+                    <span class="count-pill vote-status-pill"
+                        th:classappend="${round.published} ? ' published-pill' : ' draft-pill'"
+                        th:text="${round.published ? 'Published' : 'Draft'}">
+                    </span>
+                </div>
+
+                <form th:if="${round.published}" class="vote-settings-form clean-settings-form published-settings-view">
+
+                    <div class="vote-settings-fields clean-settings-fields">
+
+                        <label class="settings-field">
+                            <span>Vote Title</span>
+                            <input th:value="${round.title}" disabled>
+                        </label>
+
+                        <label class="settings-field">
+                            <span>Maximum Selections</span>
+                            <input th:value="${round.maxSelections}" disabled>
+                        </label>
+
+                        <label class="settings-field">
+                            <span>Majority Rule</span>
+                            <input th:value="${round.majorityRule}" disabled>
+                        </label>
+
+                    </div>
+
+                    <div class="subtle-settings-options">
+
+                        <label class="subtle-option-toggle disabled-option-toggle">
+                            <input type="checkbox" th:checked="${round.includeBlank}" disabled>
+
+                            <div>
+                                <strong>Blank</strong>
+                                <span>Allow blank votes</span>
+                            </div>
+                        </label>
+
+                        <label class="subtle-option-toggle disabled-option-toggle">
+                            <input type="checkbox" th:checked="${round.includeVacant}" disabled>
+
+                            <div>
+                                <strong>Vacant</strong>
+                                <span>Allow vacant votes</span>
+                            </div>
+                        </label>
+
+                    </div>
+
+                </form>
+
+                <form th:if="${!round.published}" method="post" th:action="@{/admin/rounds/{id}/update(id=${round.id})}"
+                    class="vote-settings-form clean-settings-form round-edit-scroll-form">
+
+                    <input type="hidden" name="nominationRequired" id="publishNominationRequired" value="true">
+
+                    <div class="vote-settings-fields clean-settings-fields">
+
+                        <label class="settings-field">
+                            <span>Vote Title</span>
+                            <input name="title" th:value="${round.title}" required>
+                        </label>
+
+                        <label class="settings-field">
+                            <span>Maximum Selections</span>
+                            <input name="maxSelections" type="number" min="1" th:value="${round.maxSelections}"
+                                required>
+                        </label>
+
+                        <label class="settings-field">
+                            <span>Majority Rule</span>
+                            <select name="majorityRule">
+                                <option value="SIMPLE" th:selected="${round.majorityRule == 'SIMPLE'}">
+                                    Simple Majority
+                                </option>
+                                <option value="TWO_THIRDS" th:selected="${round.majorityRule == 'TWO_THIRDS'}">
+                                    Two-Thirds Majority
+                                </option>
+                                <option value="FOUR_FIFTHS" th:selected="${round.majorityRule == 'FOUR_FIFTHS'}">
+                                    Four-Fifths Majority
+                                </option>
+                            </select>
+                        </label>
+
+                    </div>
+
+                    <div class="subtle-settings-options">
+
+                        <label class="subtle-option-toggle">
+                            <input type="checkbox" name="includeBlank" th:checked="${round.includeBlank}">
+
+                            <div>
+                                <strong>Blank</strong>
+                                <span>Allow blank votes</span>
+                            </div>
+                        </label>
+
+                        <label class="subtle-option-toggle">
+                            <input type="checkbox" name="includeVacant" th:checked="${round.includeVacant}">
+
+                            <div>
+                                <strong>Vacant</strong>
+                                <span>Allow vacant votes</span>
+                            </div>
+                        </label>
+
+                    </div>
+
+                    <div class="clean-settings-actions">
+
+                        <button type="submit" class="settings-action-button">
+                            Save Settings
+                        </button>
+
+                        <button type="submit" formmethod="post"
+                            th:formaction="@{/admin/rounds/{id}/publish(id=${round.id})}"
+                            class="settings-action-button secondary">
+                            Publish Vote
+                        </button>
+
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="card compact-card clean-round-panel">
+                <div class="section-header clean-panel-header">
+                    <div>
+                        <h2 th:text="${round.published ? 'Candidate Results' : 'Candidates'}"></h2>
+
+                        <p class="muted" th:if="${!round.published}">
+                            Add candidates and choose tie-break priority.
+                        </p>
+
+                        <p class="muted" th:if="${round.published}">
+                            This vote is published. Candidates are shown as a live poll.
+                        </p>
+                    </div>
+
+                    <span class="count-pill" th:if="${round.published}">Live Results</span>
+                </div>
+
+                <div th:if="${!round.published}">
+                    <form method="post" th:action="@{/admin/rounds/{id}/alternatives(id=${round.id})}"
+                        class="clean-add-alternative-form round-edit-scroll-form">
+
+                        <input name="text" placeholder="Candidate name" required>
+                        <button type="submit">Add</button>
+                    </form>
+
+                    <form method="post" class="round-edit-scroll-form" th:id="'saveAlternativesForm-' + ${round.id}"
+                        th:action="@{/admin/rounds/{id}/alternatives/save-all(id=${round.id})}">
+                    </form>
+
+                    <div class="simple-alternative-list clean-alternative-list">
+
+                        <label class="subtle-option-toggle nomination-required-toggle">
+                            <input type="checkbox" id="nominationRequiredToggle" checked>
+
+                            <div>
+                                <strong>Nomination</strong>
+                                <span>Require nominated candidate</span>
+                            </div>
+                        </label>
+
+                        <div class="simple-alternative-row clean-alternative-row"
+                            th:each="alternative : ${alternatives}">
+
+                            <input type="hidden" th:form="'saveAlternativesForm-' + ${round.id}" name="alternativeIds"
+                                th:value="${alternative.id}">
+
+                            <input th:form="'saveAlternativesForm-' + ${round.id}" name="alternativeTexts"
+                                th:value="${alternative.text}" required>
+
+                            <label class="compact-radio nomination-radio-label">
+                                <input class="nomination-radio" type="radio"
+                                    th:form="'saveAlternativesForm-' + ${round.id}" name="nominatedAlternativeId"
+                                    th:value="${alternative.id}" th:checked="${alternative.nominated}">
+                                Nominated
+                            </label>
+
+                            <form method="post" class="round-edit-scroll-form"
+                                th:action="@{/admin/alternatives/{id}/delete(id=${alternative.id})}">
+                                <button class="small-button danger-button remove-alternative-button" type="submit">
+                                    Remove
+                                </button>
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                    <div class="alternative-actions clean-alternative-actions">
+                        <button th:form="'saveAlternativesForm-' + ${round.id}" type="submit">
+                            Save Candidates
+                        </button>
+                    </div>
+                </div>
+
+                <div th:if="${round.published}" class="published-results-list">
+                    <div th:each="alternative : ${results.alternativeRows}" class="published-result-row">
+                        <div class="published-result-topline">
+                            <strong>
+                                <span th:text="${alternative.text}"></span>
+
+                                <span class="nominated-badge" th:if="${alternative.nominated}">
+                                    Nominated
+                                </span>
+                            </strong>
+
+                            <span>
+                                <strong th:text="${alternative.votes}"></strong>
+                                vote(s)
+                            </span>
+                        </div>
+
+                        <div class="result-bar">
+                            <div class="result-fill"
+                                th:style="'width:' + ${results.countedVotesForMajority == 0 ? 0 : alternative.votes * 100 / results.countedVotesForMajority} + '%'">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card compact-card">
+            <div class="section-header">
+                <div>
+                    <h2>Eligible Voters For This Round</h2>
+                    <p class="muted">
+                        Abstentions are managed from the Meeting Voting Matrix. This list shows who can vote in this
+                        round.
+                    </p>
+                </div>
+
+                <span class="count-pill">
+                    <strong th:text="${results.eligibleVotes}"></strong>
+                    eligible
+                </span>
+            </div>
+
+            <div class="eligible-group">
+                <div class="eligible-group-header">
+                    Ordinary Members
+                </div>
+
+                <div class="eligible-voter-grid">
+                    <div class="eligible-voter-card ordinary-voter-card" th:each="member : ${results.eligibleVoters}"
+                        th:if="${member.role == 'ORDINARY'}">
+
+                        <div>
+                            <strong th:text="${member.name}"></strong>
+                            <span>Ordinary Member</span>
+                        </div>
+
+                        <code th:text="${member.meetingVotingCode}"></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="eligible-group" th:if="${results.eligibleVoters.?[role == 'DEPUTY'].size() > 0}">
+                <div class="eligible-group-header deputy-header">
+                    Deputy Members
+                </div>
+
+                <div class="eligible-voter-grid">
+                    <div class="eligible-voter-card deputy-voter-card" th:each="member : ${results.eligibleVoters}"
+                        th:if="${member.role == 'DEPUTY'}">
+
+                        <div>
+                            <strong th:text="${member.name}"></strong>
+                            <span>Deputy Member</span>
+                        </div>
+
+                        <code th:text="${member.meetingVotingCode}"></code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const nominationRequiredToggle = document.getElementById("nominationRequiredToggle");
+        const publishNominationRequired = document.getElementById("publishNominationRequired");
+        const nominationRadios = document.querySelectorAll(".nomination-radio");
+
+        function syncNominationRequirement() {
+            if (!nominationRequiredToggle) {
+                return;
+            }
+
+            const required = nominationRequiredToggle.checked;
+
+            if (publishNominationRequired) {
+                publishNominationRequired.value = required ? "true" : "false";
+            }
+
+            nominationRadios.forEach(radio => {
+                radio.disabled = !required;
+
+                if (!required) {
+                    radio.checked = false;
+                }
+            });
+        }
+
+        if (nominationRequiredToggle) {
+            nominationRequiredToggle.addEventListener("change", syncNominationRequirement);
+            syncNominationRequirement();
+        }
+    </script>
+
+    <script src="/js/scroll-preserve.js"></script>
+
+</body>
+
+</html>

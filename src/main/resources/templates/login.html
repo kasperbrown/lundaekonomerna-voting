@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body class="login-body">
+
+    <div class="login-page">
+
+        <div class="login-shell">
+
+            <div class="login-card">
+
+                <div class="login-header">
+                    <p class="login-eyebrow">Welcome Back</p>
+                    <h2>Admin Login</h2>
+                    <p>Sign in to continue to the admin dashboard.</p>
+                </div>
+
+                <div th:if="${param.error}" class="error">
+                    Invalid username or password.
+                </div>
+
+                <div th:if="${param.logout}" class="success-box">
+                    You have been logged out.
+                </div>
+
+                <form method="post" action="/login" class="login-form">
+
+                    <label>
+                        Username
+                        <input type="text" name="username" placeholder="Enter username" required autofocus>
+                    </label>
+
+                    <label>
+                        Password
+                        <input type="password" name="password" placeholder="Enter password" required>
+                    </label>
+
+                    <button type="submit">Log In</button>
+
+                </form>
+
+                <a class="login-public-link" href="/vote">
+                    Go To Public Vote Page
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="/js/scroll-preserve.js"></script>
+</body>
+
+</html>

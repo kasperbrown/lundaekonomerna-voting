@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Meetings</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <span>LundaEkonomerna Voting</span>
+        </div>
+
+        <div class="nav-links">
+            <a href="/admin">Meetings</a>
+            <a href="/admin/members">Members</a>
+            <a href="/vote">Public Vote Page</a>
+            <a href="/logout">Log Out</a>
+        </div>
+    </nav>
+
+    <div class="header">
+        <h1>Meetings</h1>
+        <p>Create and manage voting meetings</p>
+    </div>
+
+    <div class="container">
+
+        <div class="card compact-card">
+            <div class="section-header">
+                <div>
+                    <h2>Create Meeting</h2>
+                    <p class="muted">Set up a new meeting before creating voting rounds.</p>
+                </div>
+            </div>
+
+            <form method="post" action="/admin/meetings" class="admin-create-meeting-form">
+                <input name="title" placeholder="Meeting title" required>
+                <input name="date" type="date" required>
+                <button type="submit">Create Meeting</button>
+            </form>
+        </div>
+
+        <div class="card compact-card">
+            <div class="section-header">
+                <div>
+                    <h2>All Meetings</h2>
+                    <p class="muted">Open a meeting to manage attendance, voting rounds and codes.</p>
+                </div>
+
+                <span class="count-pill">
+                    Total:
+                    <strong th:text="${#lists.size(meetings)}"></strong>
+                </span>
+            </div>
+
+            <div class="admin-meeting-list">
+
+                <div th:if="${#lists.isEmpty(meetings)}" class="empty-rounds-box">
+                    No meetings have been created yet.
+                </div>
+
+                <div class="admin-meeting-row" th:each="meeting : ${meetings}">
+                    <div>
+                        <h3 th:text="${meeting.title}"></h3>
+                        <p th:text="${meeting.date}"></p>
+                    </div>
+
+                    <a class="button" th:href="@{/admin/meetings/{id}(id=${meeting.id})}">
+                        Open Meeting
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script src="/js/scroll-preserve.js"></script>
+
+</body>
+
+</html>

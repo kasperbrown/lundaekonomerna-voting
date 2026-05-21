@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Vote unavailable</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Vote unavailable</h1>
+        <p>This vote is not open yet</p>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2 th:text="${message}"></h2>
+            <p>Please contact the meeting admin if you believe this is incorrect.</p>
+        </div>
+    </div>
+    <script src="/js/scroll-preserve.js"></script>
+</body>
+
+</html>

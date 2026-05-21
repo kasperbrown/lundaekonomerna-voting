@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Results</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <span>LundaEkonomerna Voting</span>
+        </div>
+
+        <div class="nav-links">
+            <a href="/admin">Meetings</a>
+            <a href="/admin/members">Members</a>
+            <a href="/vote">Public Vote Page</a>
+            <a href="/logout">Log Out</a>
+        </div>
+    </nav>
+
+    <div class="header">
+        <h1>Results</h1>
+        <p th:text="${round.title}"></p>
+    </div>
+
+    <div class="container">
+
+        <div class="clean-result-banner"
+            th:classappend="${results.passed} ? ' clean-result-passed' : ' clean-result-failed'">
+
+            <div>
+                <span class="decision-label">Current Status</span>
+                <h2 th:text="${results.passed ? 'PASSED' : 'NOT PASSED'}"></h2>
+                <p>
+                    Leading Alternative:
+                    <strong th:text="${results.leadingAlternativeText}"></strong>
+                </p>
+            </div>
+
+            <div class="clean-result-score">
+                <span>Votes Toward Majority</span>
+                <strong>
+                    <span th:text="${results.highestVotes}"></span>
+                    /
+                    <span th:text="${results.requiredVotes}"></span>
+                </strong>
+            </div>
+
+        </div>
+
+        <div class="clean-results-grid">
+
+            <div class="card compact-card">
+                <h2>Vote Progress</h2>
+
+                <p th:if="${results.allExpectedVotesCast}" class="success-box">
+                    All expected votes have been cast.
+                </p>
+
+                <p th:unless="${results.allExpectedVotesCast}" class="warning-box">
+                    Waiting for
+                    <strong th:text="${results.notVoted}"></strong>
+                    more vote(s).
+                </p>
+
+                <div class="clean-metric-grid">
+                    <div>
+                        <span>Votes Cast</span>
+                        <strong th:text="${results.votesCast}"></strong>
+                    </div>
+
+                    <div>
+                        <span>Remaining</span>
+                        <strong th:text="${results.notVoted}"></strong>
+                    </div>
+
+                    <div>
+                        <span>Quorum</span>
+                        <strong th:text="${results.quorumReached ? 'Reached' : 'Not reached'}"></strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card compact-card">
+                <h2>Majority</h2>
+
+                <p th:if="${results.highestVotes >= results.requiredVotes}" class="success-box">
+                    Required majority has been reached.
+                </p>
+
+                <p th:if="${results.highestVotes < results.requiredVotes}" class="warning-box">
+                    Required majority has not yet been reached.
+                </p>
+
+                <div class="clean-metric-grid">
+                    <div>
+                        <span>Majority Base</span>
+                        <strong th:text="${results.countedVotesForMajority}"></strong>
+                    </div>
+
+                    <div>
+                        <span>Required</span>
+                        <strong th:text="${results.requiredVotes}"></strong>
+                    </div>
+
+                    <div>
+                        <span>Rule</span>
+                        <strong th:text="${results.majorityRule}"></strong>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card compact-card">
+            <h2>Vote Breakdown</h2>
+
+            <div class="clean-breakdown-grid">
+                <div>
+                    <span>Eligible Voters</span>
+                    <strong th:text="${results.eligibleVotes}"></strong>
+                </div>
+
+                <div>
+                    <span>Decision Votes</span>
+                    <strong th:text="${results.decisionVotes}"></strong>
+                </div>
+
+                <div>
+                    <span>Blank Votes</span>
+                    <strong th:text="${results.blankVotes}"></strong>
+                </div>
+
+                <div>
+                    <span>Vacant Votes</span>
+                    <strong th:text="${results.vacantVotes}"></strong>
+                </div>
+
+                <div>
+                    <span>Abstentions</span>
+                    <strong th:text="${results.abstentions}"></strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="card compact-card">
+
+            <h2>Alternative Results</h2>
+
+            <div th:each="alternative : ${results.alternativeRows}">
+
+                <div class="result-row">
+
+                    <strong>
+                        <span th:text="${alternative.text}"></span>
+
+                        <span class="nominated-badge" th:if="${alternative.nominated}">
+                            Nominated
+                        </span>
+                    </strong>
+
+                    <span>
+                        <strong th:text="${alternative.votes}"></strong>
+                        vote(s)
+                    </span>
+
+                </div>
+
+                <div class="result-bar">
+
+                    <div class="result-fill"
+                        th:style="'width:' + ${results.countedVotesForMajority == 0 ? 0 : alternative.votes * 100 / results.countedVotesForMajority} + '%'">
+                    </div>
+
+                </div>
+
+                <br>
+
+            </div>
+
+        </div>
+
+        <div class="card compact-card">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Eligible Voters for This Round</h2>
+
+                    <p class="muted">
+                        Voting Codes are Shown Here for Admin Verification.
+                    </p>
+                </div>
+
+                <span class="count-pill">
+                    <strong th:text="${results.eligibleVotes}"></strong>
+                    Eligible
+                </span>
+
+            </div>
+
+            <div class="eligible-group">
+
+                <div class="eligible-group-header">
+                    Ordinary Members
+                </div>
+
+                <div class="eligible-voter-grid">
+
+                    <div class="eligible-voter-card ordinary-voter-card" th:each="member : ${results.eligibleVoters}"
+                        th:if="${member.role == 'ORDINARY'}">
+
+                        <div>
+                            <strong th:text="${member.name}"></strong>
+                            <span>Ordinary Member</span>
+                        </div>
+
+                        <code th:text="${member.meetingVotingCode}"></code>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="eligible-group" th:if="${results.eligibleVoters.?[role == 'DEPUTY'].size() > 0}">
+
+                <div class="eligible-group-header deputy-header">
+                    Deputy Members
+                </div>
+
+                <div class="eligible-voter-grid">
+
+                    <div class="eligible-voter-card deputy-voter-card" th:each="member : ${results.eligibleVoters}"
+                        th:if="${member.role == 'DEPUTY'}">
+
+                        <div>
+                            <strong th:text="${member.name}"></strong>
+                            <span>Deputy Member</span>
+                        </div>
+
+                        <code th:text="${member.meetingVotingCode}"></code>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <script src="/js/scroll-preserve.js"></script>
+</body>
+
+</html>

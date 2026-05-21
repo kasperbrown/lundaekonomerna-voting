@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Open votes</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Open votes</h1>
+        <p>Select a vote to continue</p>
+    </div>
+
+    <div class="container">
+
+        <div class="card vote-card" th:if="${!hasOpenVotes}">
+            <div class="success-state">
+                <h2>No open votes</h2>
+                <p>There are currently no published votes available.</p>
+            </div>
+        </div>
+
+        <div class="card compact-card" th:if="${hasOpenVotes}">
+            <h2>Available votes</h2>
+
+            <div class="open-vote-list">
+                <a class="open-vote-item" th:each="vote : ${openVotes}" th:href="@{/vote/{id}(id=${vote.id})}">
+
+                    <div>
+                        <strong th:text="${vote.title}"></strong>
+                        <p>
+                            Max selections:
+                            <span th:text="${vote.maxSelections}"></span>
+                        </p>
+                    </div>
+
+                    <span class="button">Open vote</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+    <script src="/js/scroll-preserve.js"></script>
+</body>
+
+</html>

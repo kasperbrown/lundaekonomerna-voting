@@ -1,0 +1,65 @@
+### Maven ###
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+.mvn/wrapper/maven-wrapper.jar
+
+### Spring Boot ###
+HELP.md
+
+### Environment / Secrets ###
+.env
+.env.*
+application-local.properties
+application-secret.properties
+application-prod.properties
+
+### Database Files ###
+*.db
+*.sqlite
+*.sqlite3
+*.mv.db
+*.h2.db
+
+### Logs ###
+*.log
+logs/
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+### VS Code ###
+.vscode/
+
+### Eclipse / STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### OS Files ###
+.DS_Store
+Thumbs.db
+
+### Generated Files ###
+*.tmp
+*.bak
+*.swp

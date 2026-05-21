@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Meeting</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <span>LundaEkonomerna Voting</span>
+        </div>
+
+        <div class="nav-links">
+            <a href="/admin">Meetings</a>
+            <a href="/admin/members">Members</a>
+            <a href="/vote">Public Vote Page</a>
+            <a href="/logout">Log Out</a>
+        </div>
+    </nav>
+
+    <div class="header">
+        <h1 th:text="${meeting.title}"></h1>
+        <p th:text="${meeting.date}"></p>
+    </div>
+
+    <div class="container meeting-wide-container">
+
+        <div class="page-actions">
+            <a class="button secondary" href="/admin">Back To Meetings</a>
+            <a class="button" href="/admin/members">Manage Members</a>
+        </div>
+
+        <div class="meeting-overview-card cleaner-meeting-overview">
+            <div>
+                <h2>Meeting Overview</h2>
+                <p class="muted">Manage attendance and abstentions directly in the voting matrix.</p>
+            </div>
+
+            <div class="meeting-stat-grid cleaner-meeting-stat-grid">
+                <div class="meeting-stat">
+                    <span>Present</span>
+                    <strong>
+                        <span th:text="${presentCount}"></span>
+                        /
+                        <span th:text="${totalMemberCount}"></span>
+                    </strong>
+                </div>
+
+                <div class="meeting-stat">
+                    <span>Voting Rounds</span>
+                    <strong th:text="${roundCount}"></strong>
+                </div>
+
+                <div class="meeting-stat">
+                    <span>Total Abstentions</span>
+                    <strong th:text="${totalAbstentions}"></strong>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card compact-card">
+            <div class="section-header">
+                <div>
+                    <h2>Voting Matrix</h2>
+                    <p class="muted">
+                        Ordinary and Deputy Members are separated below. Click Present/Absent to update attendance.
+                        Click a voting status to toggle abstention.
+                    </p>
+                </div>
+            </div>
+
+            <div class="matrix-legend">
+                <span><i class="legend-dot eligible-dot"></i> Voting</span>
+                <span><i class="legend-dot abstain-dot"></i> Abstaining</span>
+                <span><i class="legend-dot locked-dot"></i> Not Voting</span>
+                <span><i class="legend-dot absent-dot"></i> Absent</span>
+            </div>
+
+            <div class="meeting-matrix-wrapper">
+                <table class="meeting-matrix">
+                    <thead>
+                        <tr>
+                            <th class="member-column">Member</th>
+                            <th>Attendance</th>
+                            <th>Voting Code</th>
+
+                            <th th:each="round : ${rounds}">
+                                <a th:href="@{/admin/rounds/{id}/edit(id=${round.id})}" th:text="${round.title}"></a>
+
+                                <div class="matrix-round-meta">
+                                    <span th:text="${round.published ? 'Published' : 'Draft'}"></span>
+                                    <span>
+                                        <strong th:text="${eligibleVotesByRound[round.id]}"></strong>
+                                        Voting
+                                    </span>
+                                    <span
+                                        th:classappend="${quorumReachedByRound[round.id]} ? ' matrix-quorum-reached' : ' matrix-quorum-missing'"
+                                        th:text="${quorumReachedByRound[round.id]} ? 'Quorum' : 'No Quorum'">
+                                    </span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr class="matrix-section-row ordinary-section-row">
+                            <td th:colspan="${3 + #lists.size(rounds)}">
+                                Ordinary Members
+                            </td>
+                        </tr>
+
+                        <tr th:each="member : ${ordinaryMembers}" class="ordinary-matrix-row">
+                            <td class="member-column ordinary-member-column">
+                                <strong th:text="${member.name}"></strong>
+                            </td>
+
+                            <td>
+                                <form method="post" class="matrix-inline-form scroll-form"
+                                    th:action="@{/admin/meetings/{meetingId}/members/{memberId}/toggle-present(meetingId=${meeting.id}, memberId=${member.id})}">
+
+                                    <button type="submit" class="matrix-status-pill matrix-clickable-cell"
+                                        th:classappend="${presentMemberIds.contains(member.id)} ? ' matrix-eligible' : ' matrix-absent'"
+                                        th:text="${presentMemberIds.contains(member.id)} ? 'Present' : 'Absent'">
+                                    </button>
+                                </form>
+                            </td>
+
+                            <td class="matrix-code-cell">
+                                <code th:text="${member.meetingVotingCode}"></code>
+                            </td>
+
+                            <td th:each="round : ${rounds}">
+                                <form method="post" class="matrix-inline-form scroll-form"
+                                    th:action="@{/admin/meetings/{meetingId}/rounds/{roundId}/members/{memberId}/toggle-abstain(meetingId=${meeting.id}, roundId=${round.id}, memberId=${member.id})}">
+
+                                    <button type="submit" class="matrix-status-pill matrix-clickable-cell"
+                                        th:disabled="${round.published || !presentMemberIds.contains(member.id)}"
+                                        th:classappend="${memberRoundStatusClassMap[member.id][round.id]}"
+                                        th:text="${memberRoundStatusMap[member.id][round.id]}">
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+
+                        <tr class="matrix-section-row deputy-section-row">
+                            <td th:colspan="${3 + #lists.size(rounds)}">
+                                Deputy Members
+                            </td>
+                        </tr>
+
+                        <tr th:each="member : ${deputyMembers}" class="deputy-matrix-row">
+                            <td class="member-column deputy-member-column">
+                                <strong th:text="${member.name}"></strong>
+                            </td>
+
+                            <td>
+                                <form method="post" class="matrix-inline-form scroll-form"
+                                    th:action="@{/admin/meetings/{meetingId}/members/{memberId}/toggle-present(meetingId=${meeting.id}, memberId=${member.id})}">
+
+                                    <button type="submit" class="matrix-status-pill matrix-clickable-cell"
+                                        th:classappend="${presentMemberIds.contains(member.id)} ? ' matrix-eligible' : ' matrix-absent'"
+                                        th:text="${presentMemberIds.contains(member.id)} ? 'Present' : 'Absent'">
+                                    </button>
+                                </form>
+                            </td>
+
+                            <td class="matrix-code-cell">
+                                <code th:text="${member.meetingVotingCode}"></code>
+                            </td>
+
+                            <td th:each="round : ${rounds}">
+                                <form method="post" class="matrix-inline-form scroll-form"
+                                    th:action="@{/admin/meetings/{meetingId}/rounds/{roundId}/members/{memberId}/toggle-abstain(meetingId=${meeting.id}, roundId=${round.id}, memberId=${member.id})}">
+
+                                    <button type="submit" class="matrix-status-pill matrix-clickable-cell"
+                                        th:disabled="${round.published || !presentMemberIds.contains(member.id)}"
+                                        th:classappend="${memberRoundStatusClassMap[member.id][round.id]}"
+                                        th:text="${memberRoundStatusMap[member.id][round.id]}">
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card compact-card voting-rounds-combined-card">
+            <div class="section-header">
+                <div>
+                    <h2>Voting Rounds</h2>
+                    <p class="muted">Create, edit, reorder and manage voting rounds from one place.</p>
+                </div>
+            </div>
+
+            <form method="post" th:action="@{/admin/meetings/{id}/rounds(id=${meeting.id})}"
+                class="create-vote-inline-form">
+
+                <input name="title" placeholder="Vote title" required>
+
+                <input name="maxSelections" type="number" min="1" value="1" required>
+
+                <select name="majorityRule">
+                    <option value="SIMPLE">Simple Majority</option>
+                    <option value="TWO_THIRDS">Two-Thirds Majority</option>
+                    <option value="FOUR_FIFTHS">Four-Fifths Majority</option>
+                </select>
+
+                <label class="round-option-toggle">
+                    <input type="checkbox" name="includeBlank" checked>
+                    <div>
+                        <strong>Blank</strong>
+                        <span>Allow blank votes</span>
+                    </div>
+                </label>
+
+                <label class="round-option-toggle">
+                    <input type="checkbox" name="includeVacant" checked>
+                    <div>
+                        <strong>Vacant</strong>
+                        <span>Allow vacant votes</span>
+                    </div>
+                </label>
+                <button type="submit">Create Vote</button>
+            </form>
+
+            <div class="round-list merged-round-list" id="roundList" th:attr="data-meeting-id=${meeting.id}">
+
+                <div th:if="${#lists.isEmpty(rounds)}" class="empty-rounds-box">
+                    No voting rounds have been created yet.
+                </div>
+
+                <div th:each="round : ${rounds}" class="round-list-item clean-round-list-item" draggable="true"
+                    th:attr="data-round-id=${round.id}">
+
+                    <div class="drag-handle">☰</div>
+
+                    <div class="round-list-main">
+                        <h3 th:text="${round.title}"></h3>
+
+                        <div class="round-meta">
+                            <span class="count-pill" th:text="${round.published ? 'Published' : 'Draft'}"></span>
+                            <span class="count-pill">
+                                Max: <strong th:text="${round.maxSelections}"></strong>
+                            </span>
+                            <span class="count-pill" th:text="${round.majorityRule}"></span>
+                            <span class="count-pill" th:if="${round.includeBlank}">Blank</span>
+                            <span class="count-pill" th:if="${round.includeVacant}">Vacant</span>
+                        </div>
+                    </div>
+
+                    <div class="round-actions">
+                        <a class="small-button link-button" th:href="@{/admin/rounds/{id}/edit(id=${round.id})}">
+                            ✎ Edit
+                        </a>
+
+                        <a class="small-button link-button" th:href="@{/results/{id}(id=${round.id})}">
+                            Results
+                        </a>
+
+                        <form method="post" th:action="@{/admin/rounds/{id}/delete(id=${round.id})}">
+                            <button class="small-button danger-button" type="submit">
+                                Remove
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="/js/round-order.js"></script>
+    <script src="/js/scroll-preserve.js"></script>
+</body>
+
+</html>
