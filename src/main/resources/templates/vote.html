@@ -20,7 +20,6 @@
             <div th:if="${success}" class="success-state">
                 <h2>Thank You for Voting</h2>
                 <p>Your vote has been submitted successfully.</p>
-                <p>You may now close this page.</p>
             </div>
 
             <div th:if="${round.closed and !success}" class="success-state closed-vote-state">
