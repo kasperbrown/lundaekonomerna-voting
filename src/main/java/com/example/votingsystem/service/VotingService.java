@@ -184,7 +184,7 @@ public class VotingService {
         if (leadingNames.isEmpty()) {
             leadingAlternativeText = "No votes yet";
         } else if (tiedLead && nominatedAlternative != null && leadingNames.contains(nominatedAlternative.getText())) {
-            leadingAlternativeText = nominatedAlternative.getText() + " (tie resolved by nomination)";
+            leadingAlternativeText = nominatedAlternative.getText() + " (by Nomination)";
             tieResolvedByNomination = true;
         } else if (tiedLead) {
             leadingAlternativeText = "Tie: " + String.join(", ", leadingNames);

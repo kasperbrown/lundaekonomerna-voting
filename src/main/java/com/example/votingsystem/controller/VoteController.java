@@ -64,7 +64,8 @@ public class VoteController {
 
     @GetMapping("/vote")
     public String openVotesPage(Model model) {
-        List<VotingRound> openVotes = votingRoundRepository.findByPublishedTrue();
+        List<VotingRound> openVotes = votingRoundRepository
+                .findByPublishedTrueAndClosedFalseOrderByDisplayOrderAscIdAsc();
 
         model.addAttribute("openVotes", openVotes);
         model.addAttribute("hasOpenVotes", !openVotes.isEmpty());

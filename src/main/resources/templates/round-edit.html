@@ -4,20 +4,25 @@
 <head>
     <title>Edit Voting Round</title>
     <link rel="stylesheet" href="/css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 </head>
 
 <body>
 
     <nav class="top-nav">
-        <div class="nav-brand">
-            <span>LundaEkonomerna Voting</span>
-        </div>
+        <a class="nav-brand" th:href="@{/admin}">Voting System</a>
+
+        <button class="nav-toggle" type="button" aria-label="Open menu"
+            onclick="document.body.classList.toggle('nav-open')">
+            ☰
+        </button>
 
         <div class="nav-links">
-            <a href="/admin">Meetings</a>
-            <a href="/admin/members">Members</a>
-            <a href="/vote">Public Vote Page</a>
-            <a href="/logout">Log Out</a>
+            <a th:href="@{/admin}">Meetings</a>
+            <a th:href="@{/admin/members}">Members</a>
+            <a th:href="@{/votes}">Open votes</a>
+            <a th:href="@{/logout}">Log out</a>
         </div>
     </nav>
 

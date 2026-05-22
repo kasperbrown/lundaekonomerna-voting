@@ -537,7 +537,7 @@ select:disabled {
 
 .meeting-matrix thead .member-column {
     z-index: 40;
-    min-width: 240px;
+    min-width: 150px;
     background: #faf5f5;
     box-shadow: 2px 0 0 #e7dede;
 }
@@ -1201,7 +1201,7 @@ select:disabled {
 }
 
 .success-state::before {
-    content: "✓";
+    content: "\2713";
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1687,7 +1687,760 @@ select:disabled {
 }
 
 .closed-vote-state::before {
-    content: "×";
+    content: "\00D7";
     background: #f3e6e6;
     color: var(--primary-red);
+}
+
+/* =========================================================
+   Consolidated admin, navigation, voting rounds and mobile matrix
+   ========================================================= */
+
+.nav-toggle {
+    display: none;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    background: var(--primary-red);
+    color: white;
+    font-size: 26px;
+    line-height: 1;
+    font-weight: 900;
+}
+
+.clickable-meeting-row {
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.clickable-meeting-row:hover {
+    border-color: var(--primary-red);
+    background: var(--soft-red-light);
+    transform: translateY(-1px);
+}
+
+.admin-meeting-row .row-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+}
+
+.meeting-action-button {
+    width: 130px;
+    min-width: 130px;
+    height: 54px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.meeting-action-button:hover {
+    transform: translateY(-1px);
+}
+
+.primary-action {
+    background: var(--primary-red);
+    color: white;
+}
+
+.secondary-action,
+.danger-action {
+    background: var(--general-grey);
+    color: white;
+}
+
+.secondary-action:hover,
+.danger-action:hover {
+    background: var(--primary-red);
+}
+
+.voting-rounds-combined-card {
+    overflow: hidden;
+}
+
+.create-vote-inline-form {
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: minmax(220px, 1.4fr) minmax(150px, 0.7fr) minmax(190px, 1fr) minmax(170px, 0.8fr) minmax(170px, 0.8fr) minmax(160px, 0.7fr);
+    align-items: end;
+    gap: 14px;
+    padding: 18px;
+}
+
+.create-vote-inline-form>* {
+    min-width: 0;
+}
+
+.create-vote-inline-form .settings-field {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+}
+
+.create-vote-inline-form .settings-field span {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #666666;
+}
+
+.create-vote-inline-form input,
+.create-vote-inline-form select,
+.create-vote-inline-form button,
+.create-vote-inline-form .round-option-toggle {
+    height: 58px;
+}
+
+.create-vote-inline-form input,
+.create-vote-inline-form select {
+    padding: 0 16px;
+}
+
+.create-vote-inline-form button {
+    white-space: nowrap;
+}
+
+.create-vote-inline-form .round-option-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    margin: 0;
+}
+
+.create-vote-inline-form .round-option-toggle input {
+    width: 18px;
+    height: 18px;
+    min-height: unset;
+    flex-shrink: 0;
+}
+
+.create-vote-inline-form .round-option-toggle strong {
+    font-size: 15px;
+    line-height: 1.1;
+}
+
+.create-vote-inline-form .round-option-toggle span {
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+.clean-round-list-item {
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    width: 100%;
+}
+
+.round-list-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-width: 0;
+}
+
+.round-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.round-title-row h3 {
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.round-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.round-actions form {
+    margin: 0;
+}
+
+.matrix-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.matrix-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.matrix-top-stats {
+    display: flex;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.compact-stat {
+    min-width: 170px;
+    padding: 16px 18px;
+}
+
+.compact-stat strong {
+    font-size: 2rem;
+}
+
+.matrix-status-pill-small {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--soft-red);
+    color: var(--primary-red);
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.matrix-round-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+html,
+body {
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+body {
+    position: relative;
+}
+
+.container,
+.login-page {
+    padding-bottom: 90px;
+}
+
+@media (max-width: 1300px) {
+    .create-vote-inline-form {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1000px) {
+    .admin-create-meeting-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .matrix-header-top {
+        flex-direction: column;
+    }
+
+    .matrix-top-stats {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .compact-stat {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 800px) {
+
+    .create-vote-inline-form,
+    .clean-round-list-item {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    html {
+        font-size: 17px;
+    }
+
+    body {
+        font-size: 16px;
+        line-height: 1.45;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .top-nav {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        padding: 12px 14px;
+    }
+
+    .nav-brand {
+        font-size: 18px;
+        line-height: 1.2;
+    }
+
+    .nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nav-links {
+        display: none;
+        grid-column: 1 / -1;
+        width: 100%;
+        margin-top: 12px;
+        gap: 8px;
+    }
+
+    body.nav-open .nav-links {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .nav-links a {
+        min-height: 50px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        background: var(--soft-red-light);
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .header {
+        padding: 24px 16px;
+    }
+
+    .header h1 {
+        font-size: 2rem;
+        line-height: 1.1;
+        letter-spacing: 0.2px;
+    }
+
+    .header p {
+        font-size: 1rem;
+    }
+
+    .container {
+        width: 100%;
+        margin: 18px auto;
+        padding: 0 14px 90px;
+    }
+
+    .card,
+    .meeting-overview-card,
+    .published-progress-card,
+    .published-status-card,
+    .login-card,
+    .clean-round-panel {
+        padding: 18px;
+        border-radius: 18px;
+        margin-bottom: 16px;
+    }
+
+    h2 {
+        font-size: 1.45rem;
+    }
+
+    h3 {
+        font-size: 1.15rem;
+    }
+
+    input,
+    select,
+    button,
+    .button {
+        width: 100%;
+        min-height: 52px;
+        min-width: 0;
+        font-size: 16px;
+        border-radius: 14px;
+    }
+
+    button,
+    .button,
+    .danger-button,
+    .link-button {
+        font-weight: 800;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .section-header,
+    .clean-panel-header,
+    .published-result-topline,
+    .open-vote-item,
+    .eligible-voter-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .page-actions,
+    .round-actions,
+    .alternative-actions,
+    .clean-alternative-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .form-row,
+    .admin-create-meeting-form,
+    .create-vote-inline-form,
+    .clean-add-alternative-form,
+    .member-add-form,
+    .member-add-actions,
+    .simple-alternative-row,
+    .clean-alternative-row,
+    .clean-member-row,
+    .members-overview-card,
+    .members-stats,
+    .meeting-overview-card,
+    .meeting-stat-grid,
+    .cleaner-meeting-stat-grid,
+    .published-round-dashboard,
+    .clean-published-dashboard,
+    .round-edit-main-grid,
+    .clean-round-edit-grid,
+    .clean-results-grid,
+    .clean-metric-grid,
+    .clean-breakdown-grid,
+    .clean-published-metrics,
+    .subtle-settings-options {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-meeting-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: stretch;
+        gap: 16px;
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .admin-meeting-row .row-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .meeting-action-button {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .meeting-stat {
+        min-height: auto;
+        padding: 16px;
+    }
+
+    .meeting-stat strong {
+        font-size: 30px;
+        white-space: normal;
+    }
+
+    .round-list-main {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+    }
+
+    .round-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .round-actions form {
+        width: 100%;
+    }
+
+    .round-actions a,
+    .round-actions button,
+    .round-actions .small-button,
+    .round-actions .danger-button,
+    .round-actions .link-button {
+        width: 100%;
+        min-width: 0;
+        height: 44px;
+        min-height: 44px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1;
+        text-align: center;
+    }
+
+    .create-vote-inline-form input,
+    .create-vote-inline-form select,
+    .create-vote-inline-form button,
+    .create-vote-inline-form .round-option-toggle {
+        height: 56px;
+    }
+
+    .meeting-matrix-wrapper {
+        max-height: none;
+        overflow-x: auto;
+        overflow-y: visible;
+        border-radius: 16px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .meeting-matrix {
+        min-width: 620px;
+        font-size: 10px;
+    }
+
+    .meeting-matrix th,
+    .meeting-matrix td {
+        padding: 7px 8px;
+        font-size: 11px;
+    }
+
+    .meeting-matrix thead .member-column,
+    .meeting-matrix tbody .member-column {
+        min-width: 100px;
+        max-width: 100px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .member-column strong {
+        font-size: 11px;
+        line-height: 1.2;
+        white-space: normal;
+    }
+
+    .meeting-matrix th:nth-child(2),
+    .meeting-matrix td:nth-child(2) {
+        min-width: 105px;
+    }
+
+    .meeting-matrix th:nth-child(3),
+    .meeting-matrix td:nth-child(3) {
+        min-width: 112px;
+    }
+
+    .matrix-status-pill,
+    .matrix-clickable-cell {
+        min-width: 62px;
+        min-height: 28px;
+        padding: 4px 6px;
+        border-radius: 999px;
+        font-size: 10px;
+        line-height: 1;
+    }
+
+    .matrix-code-cell code {
+        padding: 4px 6px;
+        font-size: 9px;
+        letter-spacing: 0.1px;
+    }
+
+    .matrix-round-title-row {
+        gap: 5px;
+    }
+
+    .matrix-round-title-row a {
+        font-size: 11px;
+        line-height: 1.15;
+    }
+
+    .matrix-status-pill-small {
+        height: 18px;
+        padding: 0 7px;
+        font-size: 9px;
+    }
+
+    .matrix-round-voting-count,
+    .matrix-round-quorum {
+        font-size: 10px;
+        line-height: 1.1;
+    }
+
+    .matrix-section-row .member-column {
+        z-index: 35;
+        background: var(--soft-red-light);
+        box-shadow: 2px 0 0 #eeeeee;
+        color: var(--primary-red);
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+    }
+
+    .deputy-section-row .member-column {
+        background: #f3f6fb;
+        color: #43536b;
+    }
+
+    .matrix-section-row td:not(.member-column) {
+        background: var(--soft-red-light);
+    }
+
+    .deputy-section-row td:not(.member-column) {
+        background: #f3f6fb;
+    }
+
+    .matrix-code-cell code,
+    .eligible-voter-card code {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .clean-result-banner {
+        display: block;
+        min-height: unset;
+        padding: 20px;
+        border-radius: 18px;
+    }
+
+    .clean-result-banner h2,
+    .published-status-card h2 {
+        font-size: 2.2rem;
+        line-height: 1.05;
+    }
+
+    .clean-result-score {
+        width: 100%;
+        min-width: unset;
+        align-items: flex-start;
+        text-align: left;
+        padding: 18px;
+        margin-top: 18px;
+    }
+
+    .clean-result-score strong {
+        font-size: 44px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .clean-published-metrics>div,
+    .members-stats div,
+    .clean-metric-grid div,
+    .clean-breakdown-grid div {
+        height: auto;
+        min-height: 86px;
+    }
+
+    .clean-published-metrics>div strong,
+    .members-stats strong,
+    .clean-metric-grid strong,
+    .clean-breakdown-grid strong {
+        font-size: 28px;
+    }
+
+    .clean-member-header,
+    .drag-handle {
+        display: none;
+    }
+
+    .eligible-voter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vote-card {
+        max-width: 100%;
+    }
+
+    .vote-alternative-header {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+    }
+
+    .vote-code-section input {
+        max-width: 100%;
+    }
+
+    .vote-option {
+        padding: 18px;
+        border-radius: 16px;
+    }
+
+    .sticky-save {
+        left: 12px;
+        right: 12px;
+        bottom: 10px;
+        padding: 12px;
+        text-align: center;
+    }
+
+    .login-page {
+        padding: 16px;
+        align-items: start;
+    }
+
+    .login-card {
+        margin-top: 24px;
+        padding: 24px 20px;
+    }
+
+    .login-header h1,
+    .success-state h2 {
+        font-size: 2rem;
+    }
+
+    .success-state {
+        padding: 24px 12px;
+    }
+}
+
+@media (max-width: 380px) {
+    .header h1 {
+        font-size: 1.7rem;
+    }
+
+    .card,
+    .meeting-overview-card,
+    .published-progress-card,
+    .published-status-card,
+    .login-card {
+        padding: 14px;
+    }
+
+    .meeting-matrix {
+        min-width: 720px;
+    }
+
+    .published-status-card h2,
+    .clean-result-banner h2 {
+        font-size: 1.8rem;
+    }
 }

@@ -12,4 +12,6 @@ public interface VotingRoundRepository extends JpaRepository<VotingRound, Long> 
     List<VotingRound> findByMeetingOrderByDisplayOrderAscIdAsc(Meeting meeting);
 
     List<VotingRound> findByPublishedTrue();
+
+    List<VotingRound> findByPublishedTrueAndClosedFalseOrderByDisplayOrderAscIdAsc();
 }

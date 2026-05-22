@@ -296,6 +296,60 @@ public class AdminController {
         return "redirect:/admin";
     }
 
+    @GetMapping("/meetings/{id}/edit")
+    public String editMeeting(@PathVariable Long id, Model model) {
+        Meeting meeting = meetingRepository.findById(id).orElseThrow();
+        model.addAttribute("meeting", meeting);
+        return "meeting-edit";
+    }
+
+    @PostMapping("/meetings/{id}/update")
+    public String updateMeeting(
+            @PathVariable Long id,
+            @RequestParam String title,
+            @RequestParam String date) {
+
+        Meeting meeting = meetingRepository.findById(id).orElseThrow();
+        meeting.setTitle(title);
+        meeting.setDate(LocalDate.parse(date));
+        meetingRepository.save(meeting);
+
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/meetings/{id}/delete")
+    public String deleteMeeting(@PathVariable Long id) {
+        Meeting meeting = meetingRepository.findById(id).orElseThrow();
+
+        for (VotingRound round : votingRoundRepository.findByMeeting(meeting)) {
+            for (Vote vote : voteRepository.findByVotingRound(round)) {
+                voteRepository.delete(vote);
+            }
+
+            for (VoteAbstention abstention : voteAbstentionRepository.findByVotingRound(round)) {
+                voteAbstentionRepository.delete(abstention);
+            }
+
+            for (Alternative alternative : alternativeRepository.findByVotingRound(round)) {
+                alternativeRepository.delete(alternative);
+            }
+
+            votingRoundRepository.delete(round);
+        }
+
+        for (MeetingAttendance attendance : meetingAttendanceRepository.findByMeeting(meeting)) {
+            meetingAttendanceRepository.delete(attendance);
+        }
+
+        for (MeetingVotingCode code : meetingVotingCodeRepository.findByMeeting(meeting)) {
+            meetingVotingCodeRepository.delete(code);
+        }
+
+        meetingRepository.delete(meeting);
+
+        return "redirect:/admin";
+    }
+
     @GetMapping("/members")
     public String members(Model model) {
         List<Member> ordinaryMembers = memberRepository.findByRoleOrderByIdAsc("ORDINARY");
@@ -871,14 +925,14 @@ public class AdminController {
 
     @PostMapping("/rounds/{id}/close")
     public String closeVotingRound(@PathVariable Long id) {
-
+    
         VotingRound round = votingRoundRepository.findById(id).orElseThrow();
-
+    
         if (round.isPublished()) {
             round.setClosed(true);
             votingRoundRepository.save(round);
         }
-
+    
         return "redirect:/admin/rounds/" + round.getId() + "/edit";
     }
 }

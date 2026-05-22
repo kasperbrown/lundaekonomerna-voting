@@ -4,20 +4,25 @@
 <head>
     <title>Meetings</title>
     <link rel="stylesheet" href="/css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 </head>
 
 <body>
 
     <nav class="top-nav">
-        <div class="nav-brand">
-            <span>LundaEkonomerna Voting</span>
-        </div>
+        <a class="nav-brand" th:href="@{/admin}">Voting System</a>
+
+        <button class="nav-toggle" type="button" aria-label="Open menu"
+            onclick="document.body.classList.toggle('nav-open')">
+            ☰
+        </button>
 
         <div class="nav-links">
-            <a href="/admin">Meetings</a>
-            <a href="/admin/members">Members</a>
-            <a href="/vote">Public Vote Page</a>
-            <a href="/logout">Log Out</a>
+            <a th:href="@{/admin}">Meetings</a>
+            <a th:href="@{/admin/members}">Members</a>
+            <a th:href="@{/votes}">Open votes</a>
+            <a th:href="@{/logout}">Log out</a>
         </div>
     </nav>
 
@@ -37,8 +42,16 @@
             </div>
 
             <form method="post" action="/admin/meetings" class="admin-create-meeting-form">
-                <input name="title" placeholder="Meeting title" required>
-                <input name="date" type="date" required>
+                <label class="settings-field">
+                    <span>Meeting title</span>
+                    <input name="title" placeholder="Meeting title" required>
+                </label>
+
+                <label class="settings-field">
+                    <span>Date</span>
+                    <input name="date" type="date" required>
+                </label>
+
                 <button type="submit">Create Meeting</button>
             </form>
         </div>
@@ -62,15 +75,32 @@
                     No meetings have been created yet.
                 </div>
 
-                <div class="admin-meeting-row" th:each="meeting : ${meetings}">
+                <div class="admin-meeting-row clickable-meeting-row" th:each="meeting : ${meetings}"
+                    th:onclick="|window.location.href='/admin/meetings/${meeting.id}'|">
+
                     <div>
                         <h3 th:text="${meeting.title}"></h3>
                         <p th:text="${meeting.date}"></p>
                     </div>
 
-                    <a class="button" th:href="@{/admin/meetings/{id}(id=${meeting.id})}">
-                        Open Meeting
-                    </a>
+                    <div class="row-actions" onclick="event.stopPropagation();">
+                        <a class="meeting-action-button primary-action"
+                            th:href="@{/admin/meetings/{id}(id=${meeting.id})}">
+                            Open
+                        </a>
+
+                        <a class="meeting-action-button secondary-action"
+                            th:href="@{/admin/meetings/{id}/edit(id=${meeting.id})}">
+                            Edit
+                        </a>
+
+                        <form method="post" th:action="@{/admin/meetings/{id}/delete(id=${meeting.id})}"
+                            onsubmit="return confirm('Delete this meeting and all related voting data?');">
+                            <button class="meeting-action-button danger-action" type="submit">
+                                Remove
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
             </div>
